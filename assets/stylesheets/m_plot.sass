@@ -1,0 +1,60 @@
+@import compass
+@import susy
+
+
+.plot 
+  +span-columns(12)
+  margin: 54px 0
+
+
+.plot + .plot 
+  margin-top: 0
+
+.plot-canvas
+  +span-columns(12)
+  height: 600px
+  margin-bottom: 18px
+  background: image_url('plot.png') no-repeat center center
+  border: 1px solid #ccc
+  cursor: pointer
+
+  &[data-drawn=true]
+    background: none
+    border: none
+    cursor: default
+
+.plot-axis 
+  font-size: .8em
+
+  path
+    fill: none
+    stroke: black
+
+.tick 
+  stroke: black
+
+
+.plot-data-point
+  fill: #f08f00
+  opacity: .8
+  
+.plot-mean-value
+  stroke: #7d921d
+  stroke-width: 1
+
+.plot-mean-interval
+  fill: #afd600
+  stroke: none
+  opacity: .2
+
+
+#psen
+
+  .plot-data-point
+    fill: rgb(60,165,233)
+
+  .plot-mean-value
+    stroke: #555
+
+  .plot-mean-interval
+    fill: #aaa

@@ -1,0 +1,3 @@
+require './arbor'
+
+run Arbor

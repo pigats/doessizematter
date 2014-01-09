@@ -1,0 +1,149 @@
+!!! 5
+
+%html
+  %head
+    %title School size as an indicator of performance &mdash; Arbor Education
+    %link{rel: 'stylesheet', href: stylesheet_path('app')}
+    %meta{charset: 'UTF-8'}
+
+  %body
+
+    %section.container
+      %header.main-description-header
+        %h1 Does size matter?
+        %p 
+          We analyzed the KS1 and KS2 performance data for UK Schools (publicly available at&nbsp;
+          %a{href: 'http://www.education.gov.uk/schools/performance/download_data.html'}> http://www.education.gov.uk/schools/performance/download_data.html
+          ) to see if it is a function of the school size (expressed in number of pupils). 
+        %p
+          To check for trends, we used the&nbsp;
+          %a{href: 'http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient'}> Pearson correlation index 
+          \.
+
+        %article.main-description-help
+          %p In the following plots each point represent one of the analyzed schools. We also draw the mean of the y axis quantity as an horizontal line and a coloured band at &pm;&sigma;.
+
+      %aside.main-description-data
+        %h2 The sample
+        %ul
+          %li
+            %span#data-sample-size 
+            schools
+          %li mainstream schools (filtered)
+          %li up to 1000 pupils (filtered)
+
+        %p
+          %a{href: '/filtered.tsv'} Download the data [.tsv, 719KB]
+
+
+      %article.plot
+        %h2 Key Stage 1
+
+        %svg.plot-canvas#ks1
+
+        %p This plot show the performance at KS1 (age 5-7) as a function of school size. 
+        %p 
+          The lack of visible correlation is supported by a value close to 0 for the Pearson index: &rho; =&nbsp; 
+          %span#pearson-ks1>
+          \.
+
+
+      %article.plot
+        %h2 Key Stage 2
+        
+        %svg.plot-canvas#ks2
+
+        %p This plot show the performance at KS2 (age 7-11) as a function of school size.
+        %p 
+          The lack of visible correlation is supported by a value close to 0 for the Pearson index: &rho; =&nbsp;
+          %span#pearson-ks2>
+          \.
+
+
+
+      %article.main-description
+        %h1 The effect of pupils with SEN
+        %p It is interesting to see if the results shown above are connected to the percentage of pupils with Special Educational Needs.
+
+
+
+      %article.plot
+
+        %svg.plot-canvas#psen
+
+        %p This plot show the percentage of pupils with SEN as a function of school size.
+        %p 
+          The lack of visible correlation is supported by a value close to 0 for the Pearson index: &rho; =&nbsp;
+          %span#pearson-psen>
+          \.
+
+
+      %article.main-description
+        %p Despite the lack of evidence, we can still try to weight the performance data with the percentage of non-SEN pupils and see if such indicator shows some kind of trend with school size.
+
+      %article.plot
+        %h2 SEN-weighted KS1
+
+        %svg.plot-canvas#senwks1
+
+        %p This plot show an index obtained weighting the KS1 data with the percentage of non-SEN pupils as a function of school size.
+        %p 
+          The lack of visible correlation is supported by a value close to 0 for the Pearson index: &rho; =&nbsp;
+          %span#pearson-senwks1>
+          \.
+
+      %article.plot
+        %h2 SEN-weighted KS2
+
+        %svg.plot-canvas#senwks2
+
+        %p This plot show an index obtained weighting the KS2 data with the percentage of non-SEN pupils as a function of school size.
+        %p 
+          The lack of visible correlation is supported by a value close to 0 for the Pearson index: &rho; =&nbsp;
+          %span#pearson-senwks2>
+          \.
+
+
+      %article.main-description
+        %h1 Conclusion
+        %p With our brief analysis we showed that school size is not a good indicator for KS1 and KS2 performance, even when we take into account the percentage of pupils with SEN.
+
+
+      %footer.main-footer
+        Developed with &hearts; by Andrea Pigato 
+        %a{href: 'mailto:andreapigato@gmail.com'} andreapigato@gmail.com 
+        for Arbor Education Partners 
+        &mdash; &copy;
+        %span#year
+
+
+
+  %script{src: javascript_path('app')}
+  :javascript 
+
+    new Model('filtered.tsv', function(model) {
+      
+      // append exact sample size in the sample description
+      Helper.appendText('data-sample-size', model.data().length)
+
+      // create ks1 and ks2 plots and append their Pearson correlation index in the caption. draw ks1 plot.
+      new ScatterPlot(model, document.getElementById('ks1'), {x: 'N_PUPILS', y: 'KS1'}).draw();
+      new ScatterPlot(model, document.getElementById('ks2'), {x: 'N_PUPILS', y: 'KS2'})  
+      Helper.appendText('pearson-ks1', Math.round(model.pearsonIndex('N_PUPILS', 'KS1')*1000)/1000);
+      Helper.appendText('pearson-ks2', Math.round(model.pearsonIndex('N_PUPILS', 'KS2')*1000)/1000);
+
+      // create psen plots and append its Pearson correlation index in the caption
+      new ScatterPlot(model, document.getElementById('psen'), {x: 'N_PUPILS', y: 'P_SEN'});
+      Helper.appendText('pearson-psen', Math.round(model.pearsonIndex('N_PUPILS', 'P_SEN')*1000)/1000);
+
+      // create SEN weighted ks1 and ks2 plots and append their Pearson correlation index in the caption
+      model.addColumn('SENWKS1', function(d) { return Math.log(d.KS1 / (1 - d.P_SEN / 100)) }); 
+      model.addColumn('SENWKS2', function(d) { return Math.log(d.KS2 / (1 - d.P_SEN / 100)) }); 
+      new ScatterPlot(model, document.getElementById('senwks1'), {x: 'N_PUPILS', y: 'SENWKS1'});
+      new ScatterPlot(model, document.getElementById('senwks2'), {x: 'N_PUPILS', y: 'SENWKS2'});   
+      Helper.appendText('pearson-senwks1', Math.round(model.pearsonIndex('N_PUPILS', 'SENWKS1')*1000)/1000);
+      Helper.appendText('pearson-senwks2', Math.round(model.pearsonIndex('N_PUPILS', 'SENWKS2')*1000)/1000);
+
+    });
+
+    Helper.appendText('year', new Date().getFullYear());
